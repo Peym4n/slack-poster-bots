@@ -1,8 +1,17 @@
-var reddit = require('./reddit').create(
-	{
-		cronPattern: "0 */5 * * * *",
-		channel: "@peyman"
+var fs = require("fs");
+var bots = [];
+try {
+	var botsStr = fs.readFileSync("bots.json");
+	bots = JSON.parse(botsStr);
+} catch(e) {
+	console.error("Error loading bots.json!", e);
+}
+bots.forEach(function(botConfig) {
+	var bot = null;
+	try {
+		bot = require('./' + botConfig.type).create(botConfig);
+	} catch(e) {
+		console.error("Error loading bot:", botConfig.type, e);
 	}
-);
-
-reddit.run();
+	if(bot) bot.run();
+});

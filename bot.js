@@ -39,7 +39,8 @@ Bot.prototype.run = function(callback) {
 				console.log("cronJob tick.");
 				me.fetch(callback);
 			},
-			start: true
+			start: true,
+			runOnInit: true
 		});
 	}
 };

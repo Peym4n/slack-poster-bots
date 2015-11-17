@@ -1,0 +1,7 @@
+[
+	{
+		"type": "reddit",
+		"cronPattern": "0 */5 * * * *",
+		"channel": "@peyman"
+	}
+]
