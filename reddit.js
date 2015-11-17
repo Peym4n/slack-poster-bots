@@ -14,7 +14,7 @@ module.exports = {
 		var redditBot = new Bot({
 			type: "reddit",
 			name: config.name || "Reddit",
-			icon: config.icon || null,
+			icon: config.icon || "https://camo.githubusercontent.com/b13830f5a9baecd3d83ef5cae4d5107d25cdbfbe/68747470733a2f2f662e636c6f75642e6769746875622e636f6d2f6173736574732f3732313033382f313732383830352f35336532613364382d363262352d313165332d383964312d3934376632373062646430332e706e67",
 			channel: config.channel,
 			msgFormat: config.msgFormat || "<%url%|%title%>\r\n%permalink%\r\n_By %author% | Score: %score% | Comments: %num_comments%_",
 			cronPattern: config.cronPattern,
@@ -61,12 +61,15 @@ module.exports = {
 			onPost: function(bot, data, callback) {
 				console.log("posting data:", data.length);
 				data.forEach(function(post) {
-					slack.send({
+					var msgData = {
 						text: bot.msgFormat.replace(/%([^%]+)%/g, function(match, p1) { return post[p1]; }),
-						channel: '@peyman',
-						icon_emoji: ":reddit:",
+						channel: bot.channel,
 						unfurl_links: true
-					});
+					};
+					if(bot.icon) {
+						msgData[bot.icon[0] === ":" ? "icon_emoji" : "icon_url"] = bot.icon;
+					}
+					slack.send(msgData);
 				});
 			}
 		});
