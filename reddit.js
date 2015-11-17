@@ -24,38 +24,40 @@ module.exports = {
 			},
 			onFetch: function(bot, callback) {
 				var subs = JSON.parse(fs.readFileSync(bot.options.subs));
-				subs.forEach(function(sub) {
-					var cacheKey = getCacheKey(sub);
-					console.log(cacheKey + ":", "fetching...");
-					client.get(sub + '/.json?limit=' + bot.options.postCount, function(err, res, body) {
-						if(err) return console.log(cacheKey + ":", err);
-						var posts = {};
-						var ids = [];
-						body.data.children.forEach(function(child) {
-							ids.push(child.data.id);
-							posts[child.data.id] = child.data;
-						});
-						var cache = storage.getItem(bot.type + "." + cacheKey);
-						var results = {added: [], removed: [], common: []};
-						if(cache) {
-							//console.log(cacheKey + ":", "cached items found");
-							results = diff(cache, ids);
-							if(results.added.length) {
-								console.log(cacheKey + ":", "found " + results.added.length + " new post(s).");
-								console.log(cacheKey + ":", "added:", results.added);
-								callback(results.added.map(function(id) { return posts[id]; }));
+				subs.forEach(function(sub, idx) {
+					setTimeout(function() {
+						var cacheKey = getCacheKey(sub);
+						console.log(cacheKey + ":", "fetching...");
+						client.get(sub + '/.json?limit=' + bot.options.postCount, function(err, res, body) {
+							if(err) return console.log(cacheKey + ":", err);
+							var posts = {};
+							var ids = [];
+							body.data.children.forEach(function(child) {
+								ids.push(child.data.id);
+								posts[child.data.id] = child.data;
+							});
+							var cache = storage.getItem(bot.type + "." + cacheKey);
+							var results = {added: [], removed: [], common: []};
+							if(cache) {
+								//console.log(cacheKey + ":", "cached items found");
+								results = diff(cache, ids);
+								if(results.added.length) {
+									console.log(cacheKey + ":", "found " + results.added.length + " new post(s).");
+									console.log(cacheKey + ":", "added:", results.added);
+									callback(results.added.map(function(id) { return posts[id]; }));
+								} else {
+									console.log(cacheKey + ":", "no new posts found.");
+								}
 							} else {
-								console.log(cacheKey + ":", "no new posts found.");
+								console.log(cacheKey + ":", "no cache found!");
+								console.log(cacheKey + ":", "current:", ids);
 							}
-						} else {
-							console.log(cacheKey + ":", "no cache found!");
-							console.log(cacheKey + ":", "current:", ids);
-						}
-						if(results.added.length || !results.common.length) {
-							console.log(cacheKey + ":", "updating cache...");
-							storage.setItem(bot.type + "." + cacheKey, ids);
-						}
-					});
+							if(results.added.length || !results.common.length) {
+								console.log(cacheKey + ":", "updating cache...");
+								storage.setItem(bot.type + "." + cacheKey, ids);
+							}
+						});
+					}, idx * 30000);
 				});
 			},
 			onPost: function(bot, data, callback) {
