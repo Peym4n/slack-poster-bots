@@ -1,0 +1,18 @@
+{
+  "name": "slack-poster-bots",
+  "version": "1.0.0",
+  "description": "Fetches contents from different sources and posts them on Slack",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Peym4n",
+  "license": "ISC",
+  "dependencies": {
+    "cron": "^1.0.9",
+    "node-persist": "0.0.8",
+    "node-slack": "0.0.7",
+    "request-json": "^0.5.3",
+    "simple-array-diff": "^1.1.0"
+  }
+}
