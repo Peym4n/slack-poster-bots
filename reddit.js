@@ -37,14 +37,14 @@ module.exports = {
 								posts[child.data.id] = child.data;
 							});
 							var cache = storage.getItem(bot.type + "." + cacheKey);
-							var results = {added: [], removed: [], common: []};
+							var cacheDiff = {added: [], removed: [], common: []};
 							if(cache) {
 								//console.log(cacheKey + ":", "cached items found");
-								results = diff(cache, ids);
-								if(results.added.length) {
-									console.log(cacheKey + ":", "found " + results.added.length + " new post(s).");
-									console.log(cacheKey + ":", "added:", results.added);
-									callback(results.added.map(function(id) { return posts[id]; }));
+								cacheDiff = diff(cache, ids);
+								if(cacheDiff.added.length) {
+									console.log(cacheKey + ":", "found " + cacheDiff.added.length + " new post(s).");
+									console.log(cacheKey + ":", "added:", cacheDiff.added);
+									callback(cacheDiff.added.map(function(id) { return posts[id]; }));
 								} else {
 									console.log(cacheKey + ":", "no new posts found.");
 								}
@@ -52,9 +52,14 @@ module.exports = {
 								console.log(cacheKey + ":", "no cache found!");
 								console.log(cacheKey + ":", "current:", ids);
 							}
-							if(results.added.length || !results.common.length) {
+							cacheDiff = diff(cache || [], ids);
+							if(cacheDiff.added.length || !cacheDiff.common.length) {
+								var cache = cacheDiff.added.concat(cacheDiff.common).concat(cacheDiff.removed);
+								while(cache.length > 100) {
+									cache.pop();
+								}
 								console.log(cacheKey + ":", "updating cache...");
-								storage.setItem(bot.type + "." + cacheKey, ids);
+								storage.setItem(bot.type + "." + cacheKey, cache);
 							}
 						});
 					}, idx * 30000);
