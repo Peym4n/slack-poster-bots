@@ -85,8 +85,10 @@ module.exports = {
 };
 
 function getCacheKey(sub) {
+	if(sub[0] === "/") sub = sub.slice(1);
 	if(sub[sub.length-1] === "/") sub = sub.slice(0, -1);
-	var lastIdx = sub.lastIndexOf("/");
-	if(lastIdx > -1) sub = sub.slice(lastIdx + 1);
+	var idx = sub.indexOf("/");
+	if(idx > -1) sub = sub.slice(idx + 1);
+	sub = sub.replace(/\//g, "_");
 	return sub;
 }
