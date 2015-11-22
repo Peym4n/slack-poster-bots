@@ -1,7 +1,5 @@
 var Bot = require('./bot');
 var Slack = require('node-slack');
-var webhook = "https://hooks.slack.com/services/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";
-var slack = new Slack(webhook, {});
 var storage = require('node-persist');
 var request = require('request-json');
 var client = request.createClient('https://www.reddit.com/');
@@ -11,6 +9,8 @@ storage.initSync();
 module.exports = {
 	create: function(config) {
 		config = config || {};
+		if(!config.webhook) return false;
+		var slack = new Slack(config.webhook, {});
 		var redditBot = new Bot({
 			type: "reddit",
 			name: config.name || "Reddit",
@@ -20,7 +20,8 @@ module.exports = {
 			cronPattern: config.cronPattern,
 			options: {
 				subs: config.subs || "reddit-subs.json",
-				postCount: config.postCount || 10
+				postCount: config.postCount || 10,
+				minScore: config.minScore || 5
 			},
 			onFetch: function(bot, callback) {
 				var subs = JSON.parse(fs.readFileSync(bot.options.subs));
@@ -33,8 +34,10 @@ module.exports = {
 							var posts = {};
 							var ids = [];
 							body.data.children.forEach(function(child) {
-								ids.push(child.data.id);
-								posts[child.data.id] = child.data;
+								if(child.data.score >= bot.options.minScore) {
+									ids.push(child.data.id);
+									posts[child.data.id] = child.data;
+								}
 							});
 							var cache = storage.getItem(bot.type + "." + cacheKey) || [];
 							var cacheDiff = diff(cache, ids);

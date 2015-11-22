@@ -1,7 +1,9 @@
 [
 	{
 		"type": "reddit",
+		"webhook": "",
 		"cronPattern": "0 */5 * * * *",
-		"channel": "@peyman"
+		"channel": "@general",
+		"minScore": 5
 	}
 ]
